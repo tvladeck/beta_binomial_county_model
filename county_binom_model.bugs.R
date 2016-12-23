@@ -11,6 +11,7 @@ model {
     beta[i]  <- alpha[i] * ((1 / mu[i]) - 1)
 
     logit(mu[i]) <- 
+      state_predictor[state[i]] + 
       beta_white * white[i] +
       beta_age * age[i] +
       beta_diabetes * diabetes[i] + 
@@ -24,6 +25,13 @@ model {
     
     sigma[i] ~ dunif(0,.25)
   }
+  
+  for(s in 1:n_states){
+    state_predictor[s] ~ dnorm(0, tau_state)
+  }
+  
+  sigma_state ~ dgamma(0.001, 0.001)
+  tau_state <- 1/sigma_state
 
   beta_white ~ dnorm(0, 0.00001)
   beta_age ~ dnorm(0, 0.00001)

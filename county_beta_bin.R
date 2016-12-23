@@ -1,4 +1,9 @@
 setwd("~/Dropbox/Gradient/Research/Election Analysis/Other")
+
+# devtools::install_github("deleetdk/USA.county.data")
+
+library(USA.county.data)
+data(USA_county_data)
 library(rjags)
 library(readr)
 library(dplyr)
@@ -7,12 +12,13 @@ library(ggplot2)
 library(tidyr)
 library(randomForest)
 
-tidy_data <- read.csv("tidy_data.csv")
 
-hrc_votes <- tidy_data$results.clintonh
-n_votes   <- tidy_data$votes
+hrc_votes <- USA_county_data$results.clintonh
+n_votes   <- USA_county_data$votes
+state     <- USA_county_data$State
 
-jags_data <- tidy_data %>% 
+
+jags_data <- USA_county_data %>% 
   dplyr::select(
     White,
     SIRE_homogeneity,
@@ -33,17 +39,28 @@ jags_data <-
   cbind.data.frame(
     hrc_votes,
     n_votes,
+    state,
     jags_data
   ) 
 
 jags_data <- 
-  jags_data[which(!(is.na(hrc_votes) | is.na(n_votes))), ]
+  jags_data[which(!(is.na(hrc_votes) | is.na(n_votes) | is.na(state))), ]
+
+jags_data$hrc_votes <- 
+  as.integer(as.character(jags_data$hrc_votes))
+
+jags_data$n_votes <- 
+  as.integer(as.character(jags_data$n_votes))
+
+
 
 bug_file <- "county_binom_model.bugs.R"
 
 jags <- jags.model(bug_file, data = list(
-  'hrc_votes'     = hrc_votes,
-  'n_votes'       = n_votes,
+  'hrc_votes'     = jags_data$hrc_votes,
+  'n_votes'       = jags_data$n_votes,
+  'state'         = as.integer(as.factor(jags_data$state)),
+  'n_states'      = 51,
   'n_obs'         = nrow(jags_data),
   'white'         = jags_data$White,
   'age'           = jags_data$median_age,
@@ -63,7 +80,7 @@ samples <- coda.samples(
     'p',
 #    'alpha',
 #    'beta',
-#    'inter',
+    'state_predictor',
     'beta_white',
     'beta_age',
     'beta_gini',
@@ -83,54 +100,3 @@ samples <- coda.samples(
 
 samples <- readRDS("beta_bin_samples.rds")
 samples <- as.data.frame(samples[[1]])
-
-# samples <- 
-#   samples %>% 
-#   select(starts_with("p"), inter, starts_with("beta_"))
-
-samples %>% 
-  dplyr::select(inter, starts_with("beta_")) %>%  
-  gather(coef, value) %>% 
-  (function(df){
-    df_o <- 
-      df %>% 
-      group_by(coef) %>% 
-      summarize(average = mean(value)) %>% 
-      arrange(desc(average)) %>% 
-      mutate(order = 1:nrow(.))
-    
-    df <- 
-      df %>% 
-      left_join(df_o, by = "coef") %>% 
-      mutate(coef = ordered::order_by(coef, order)) %>% 
-      dplyr::select(-average, -order)
-    
-    return(df)
-  }) %>% 
-  ggplot(aes(y = value, x = coef)) + 
-    geom_boxplot(outlier.shape = NA) + 
-    geom_hline(yintercept=0)
-
-samples %>% 
-  # dplyr::select(starts_with("state_predictor")) %>%  
-  gather(coef, value) %>% 
-  (function(df){
-    df_o <- 
-      df %>% 
-      group_by(coef) %>% 
-      summarize(average = mean(value)) %>% 
-      arrange(desc(average)) %>% 
-      mutate(order = 1:nrow(.))
-    
-    df <- 
-      df %>% 
-      left_join(df_o, by = "coef") %>% 
-      mutate(coef = ordered::order_by(coef, order)) %>% 
-      dplyr::select(-average, -order)
-    
-    return(df)
-  }) %>% 
-  ggplot(aes(x = value, fill = coef)) + 
-    geom_density(alpha = 0.7) + 
-    theme(legend.position = "none") + 
-    scale_fill_hue()
