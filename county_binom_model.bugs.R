@@ -5,13 +5,12 @@ model {
     p[i] ~ dbeta(alpha[i], beta[i])
     
     # reparameterization of the beta distribution taken from this site
-    # http://stats.stackexchange.com/questions/12232/calculating-the-parameters-of-a-beta-distribution-using-the-mean-and-variance
+    # http://stats.stackexchange.com/questions/41536/how-can-i-model-a-proportion-with-bugs-jags-stan
     
-    alpha[i] <- (((1-mu[i]) / (sigma[i])^2 ) - 1/mu[i]) * mu[i]^2
-    beta[i]  <- alpha[i] * ((1 / mu[i]) - 1)
+    alpha[i] <- mu[i] * phi[i]
+    beta[i]  <- (1-mu[i]) * phi[i]
 
     logit(mu[i]) <- 
-      state_predictor[state[i]] + 
       beta_white * white[i] +
       beta_age * age[i] +
       beta_diabetes * diabetes[i] + 
@@ -22,17 +21,19 @@ model {
       beta_unemployment * unemployment[i] +
       beta_crime * crime[i] 
     
-    
-    sigma[i] ~ dunif(0,.25)
+    log(phi[i]) <- 
+      phi_white * white[i] +
+      phi_age * age[i] +
+      phi_diabetes * diabetes[i] + 
+      phi_gini * gini[i] + 
+      phi_income * income[i] +
+      phi_high_school * high_school[i]+
+      phi_uninsured * uninsured[i] +
+      phi_unemployment * unemployment[i] +
+      phi_crime * crime[i] 
+  
   }
   
-  for(s in 1:n_states){
-    state_predictor[s] ~ dnorm(0, tau_state)
-  }
-  
-  sigma_state ~ dgamma(0.001, 0.001)
-  tau_state <- 1/sigma_state
-
   beta_white ~ dnorm(0, 0.00001)
   beta_age ~ dnorm(0, 0.00001)
   beta_diabetes ~ dnorm(0, 0.00001)
@@ -42,6 +43,16 @@ model {
   beta_uninsured ~ dnorm(0, 0.00001)
   beta_unemployment ~ dnorm(0, 0.00001)
   beta_crime ~ dnorm(0, 0.00001)
+  
+  phi_white ~ dnorm(0, 0.00001)
+  phi_age ~ dnorm(0, 0.00001)
+  phi_diabetes ~ dnorm(0, 0.00001)
+  phi_gini ~ dnorm(0, 0.00001)
+  phi_income ~ dnorm(0, 0.00001)
+  phi_high_school ~ dnorm(0, 0.00001)
+  phi_uninsured ~ dnorm(0, 0.00001)
+  phi_unemployment ~ dnorm(0, 0.00001)
+  phi_crime ~ dnorm(0, 0.00001)
 }
 
 

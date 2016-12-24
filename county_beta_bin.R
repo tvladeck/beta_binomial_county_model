@@ -11,6 +11,7 @@ library(coda)
 library(ggplot2)
 library(tidyr)
 library(randomForest)
+library(magrittr)
 
 
 hrc_votes <- USA_county_data$results.clintonh
@@ -59,8 +60,8 @@ bug_file <- "county_binom_model.bugs.R"
 jags <- jags.model(bug_file, data = list(
   'hrc_votes'     = jags_data$hrc_votes,
   'n_votes'       = jags_data$n_votes,
-  'state'         = as.integer(as.factor(jags_data$state)),
-  'n_states'      = 51,
+#  'state'         = as.integer(as.factor(jags_data$state)),
+#  'n_states'      = 51,
   'n_obs'         = nrow(jags_data),
   'white'         = jags_data$White,
   'age'           = jags_data$median_age,
@@ -77,10 +78,6 @@ jags <- jags.model(bug_file, data = list(
 samples <- coda.samples(
   jags,
   c(
-    'p',
-#    'alpha',
-#    'beta',
-    'state_predictor',
     'beta_white',
     'beta_age',
     'beta_gini',
@@ -89,14 +86,17 @@ samples <- coda.samples(
     'beta_high_school',
     'beta_uninsured',
     'beta_unemployment',
-    'beta_crime'
+    'beta_crime',
+    'phi'
   ),
   10000
 )
 
 
+# saving the model w/ constant phi
+# saveRDS(samples, "beta_bin_samples_const_phi.rds")
 
-# saveRDS(samples, "beta_bin_samples.rds")
+
 
 samples <- readRDS("beta_bin_samples.rds")
 samples <- as.data.frame(samples[[1]])
