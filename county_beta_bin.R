@@ -60,8 +60,6 @@ bug_file <- "county_binom_model.bugs.R"
 jags <- jags.model(bug_file, data = list(
   'hrc_votes'     = jags_data$hrc_votes,
   'n_votes'       = jags_data$n_votes,
-#  'state'         = as.integer(as.factor(jags_data$state)),
-#  'n_states'      = 51,
   'n_obs'         = nrow(jags_data),
   'white'         = jags_data$White,
   'age'           = jags_data$median_age,
@@ -78,6 +76,7 @@ jags <- jags.model(bug_file, data = list(
 samples <- coda.samples(
   jags,
   c(
+    'mu_inter',
     'beta_white',
     'beta_age',
     'beta_gini',
@@ -87,16 +86,32 @@ samples <- coda.samples(
     'beta_uninsured',
     'beta_unemployment',
     'beta_crime',
-    'phi'
+    'phi_inter',
+    'phi_white',
+    'phi_age',
+    'phi_gini',
+    'phi_income',
+    'phi_diabetes',
+    'phi_high_school',
+    'phi_uninsured',
+    'phi_unemployment',
+    'phi_crime'
   ),
   10000
 )
 
+# without lognormal
+# saveRDS(samples, "samples_1.rds")
 
-# saving the model w/ constant phi
-# saveRDS(samples, "beta_bin_samples_const_phi.rds")
+# with lognormal + model variance
+# saveRDS(samples, "samples_2.rds")
 
+# without lognormal + beta and phi variance
+# saveRDS(samples, "samples_3.rds")
 
+# without lognormal, with beta intercept
+saveRDS(samples, "samples_4.rds")
 
-samples <- readRDS("beta_bin_samples.rds")
-samples <- as.data.frame(samples[[1]])
+# samples_mcmc <- readRDS("samples_1.rds")
+# samples <- as.data.frame(samples_mcmc[[1]])
+

@@ -1,16 +1,21 @@
 model {
 
   for(i in 1:n_obs){
+    
+    # hrc_votes[i] ~ dlnorm(predictor[i], tau_county)
+    
     hrc_votes[i] ~ dbin(p[i], n_votes[i])
     p[i] ~ dbeta(alpha[i], beta[i])
     
     # reparameterization of the beta distribution taken from this site
-    # http://stats.stackexchange.com/questions/41536/how-can-i-model-a-proportion-with-bugs-jags-stan
+    # http://bit.ly/2i880Oj
     
     alpha[i] <- mu[i] * phi[i]
     beta[i]  <- (1-mu[i]) * phi[i]
 
-    logit(mu[i]) <- 
+
+    logit(mu[i]) <-
+      mu_inter +
       beta_white * white[i] +
       beta_age * age[i] +
       beta_diabetes * diabetes[i] + 
@@ -19,9 +24,10 @@ model {
       beta_high_school * high_school[i]+
       beta_uninsured * uninsured[i] +
       beta_unemployment * unemployment[i] +
-      beta_crime * crime[i] 
+      beta_crime * crime[i]
     
     log(phi[i]) <- 
+      phi_inter + 
       phi_white * white[i] +
       phi_age * age[i] +
       phi_diabetes * diabetes[i] + 
@@ -34,6 +40,7 @@ model {
   
   }
   
+  mu_inter ~ dnorm(0, 0.00001)
   beta_white ~ dnorm(0, 0.00001)
   beta_age ~ dnorm(0, 0.00001)
   beta_diabetes ~ dnorm(0, 0.00001)
@@ -44,6 +51,7 @@ model {
   beta_unemployment ~ dnorm(0, 0.00001)
   beta_crime ~ dnorm(0, 0.00001)
   
+  phi_inter ~ dnorm(0, 0.00001)
   phi_white ~ dnorm(0, 0.00001)
   phi_age ~ dnorm(0, 0.00001)
   phi_diabetes ~ dnorm(0, 0.00001)
