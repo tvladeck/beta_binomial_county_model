@@ -2,8 +2,6 @@ model {
 
   for(i in 1:n_obs){
     
-    # hrc_votes[i] ~ dlnorm(predictor[i], tau_county)
-    
     hrc_votes[i] ~ dbin(p[i], n_votes[i])
     p[i] ~ dbeta(alpha[i], beta[i])
     
@@ -41,15 +39,15 @@ model {
   }
   
   mu_inter ~ dnorm(0, 0.00001)
-  beta_white ~ dnorm(0, 0.00001)
-  beta_age ~ dnorm(0, 0.00001)
-  beta_diabetes ~ dnorm(0, 0.00001)
-  beta_gini ~ dnorm(0, 0.00001)
-  beta_income ~ dnorm(0, 0.00001)
-  beta_high_school ~ dnorm(0, 0.00001)
-  beta_uninsured ~ dnorm(0, 0.00001)
-  beta_unemployment ~ dnorm(0, 0.00001)
-  beta_crime ~ dnorm(0, 0.00001)
+  mu_white ~ dnorm(0, 0.00001)
+  mu_age ~ dnorm(0, 0.00001)
+  mu_diabetes ~ dnorm(0, 0.00001)
+  mu_gini ~ dnorm(0, 0.00001)
+  mu_income ~ dnorm(0, 0.00001)
+  mu_high_school ~ dnorm(0, 0.00001)
+  mu_uninsured ~ dnorm(0, 0.00001)
+  mu_unemployment ~ dnorm(0, 0.00001)
+  mu_crime ~ dnorm(0, 0.00001)
   
   phi_inter ~ dnorm(0, 0.00001)
   phi_white ~ dnorm(0, 0.00001)

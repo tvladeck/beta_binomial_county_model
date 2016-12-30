@@ -53,52 +53,50 @@ jags_data$hrc_votes <-
 jags_data$n_votes <- 
   as.integer(as.character(jags_data$n_votes))
 
-
-
-bug_file <- "county_binom_model.bugs.R"
-
-jags <- jags.model(bug_file, data = list(
-  'hrc_votes'     = jags_data$hrc_votes,
-  'n_votes'       = jags_data$n_votes,
-  'n_obs'         = nrow(jags_data),
-  'white'         = jags_data$White,
-  'age'           = jags_data$median_age,
-  'diabetes'      = jags_data$Diabetes,
-  'gini'          = jags_data$Gini.Coefficient,
-  'income'        = jags_data$Median.Earnings.2010.dollars,
-  'high_school'   = jags_data$At.Least.High.School.Diploma,
-  'uninsured'     = jags_data$Uninsured,
-  'unemployment'  = jags_data$Unemployment,
-  'crime'         = jags_data$Violent.crime
-))
-
-
-samples <- coda.samples(
-  jags,
-  c(
-    'mu_inter',
-    'beta_white',
-    'beta_age',
-    'beta_gini',
-    'beta_income',
-    'beta_diabetes',
-    'beta_high_school',
-    'beta_uninsured',
-    'beta_unemployment',
-    'beta_crime',
-    'phi_inter',
-    'phi_white',
-    'phi_age',
-    'phi_gini',
-    'phi_income',
-    'phi_diabetes',
-    'phi_high_school',
-    'phi_uninsured',
-    'phi_unemployment',
-    'phi_crime'
-  ),
-  10000
-)
+# bug_file <- "county_binom_model.bugs.R"
+# 
+# jags <- jags.model(bug_file, data = list(
+#   'hrc_votes'     = jags_data$hrc_votes,
+#   'n_votes'       = jags_data$n_votes,
+#   'n_obs'         = nrow(jags_data),
+#   'white'         = jags_data$White,
+#   'age'           = jags_data$median_age,
+#   'diabetes'      = jags_data$Diabetes,
+#   'gini'          = jags_data$Gini.Coefficient,
+#   'income'        = jags_data$Median.Earnings.2010.dollars,
+#   'high_school'   = jags_data$At.Least.High.School.Diploma,
+#   'uninsured'     = jags_data$Uninsured,
+#   'unemployment'  = jags_data$Unemployment,
+#   'crime'         = jags_data$Violent.crime
+# ))
+# 
+# 
+# samples <- coda.samples(
+#   jags,
+#   c(
+#     'mu_inter',
+#     'mu_white',
+#     'mu_age',
+#     'mu_gini',
+#     'mu_income',
+#     'mu_diabetes',
+#     'mu_high_school',
+#     'mu_uninsured',
+#     'mu_unemployment',
+#     'mu_crime',
+#     'phi_inter',
+#     'phi_white',
+#     'phi_age',
+#     'phi_gini',
+#     'phi_income',
+#     'phi_diabetes',
+#     'phi_high_school',
+#     'phi_uninsured',
+#     'phi_unemployment',
+#     'phi_crime'
+#   ),
+#   10000
+# )
 
 # without lognormal
 # saveRDS(samples, "samples_1.rds")
@@ -110,8 +108,8 @@ samples <- coda.samples(
 # saveRDS(samples, "samples_3.rds")
 
 # without lognormal, with beta intercept
-saveRDS(samples, "samples_4.rds")
+# saveRDS(samples, "samples_4.rds")
 
-# samples_mcmc <- readRDS("samples_1.rds")
-# samples <- as.data.frame(samples_mcmc[[1]])
+samples_mcmc <- readRDS("samples_4.rds")
+samples <- as.data.frame(samples_mcmc[[1]])
 

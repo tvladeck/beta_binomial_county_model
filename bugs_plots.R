@@ -73,7 +73,7 @@ plot_coef_densityplots <- function(samples)
   ggplot(aes(x = value, fill = coef)) + 
     geom_density(alpha = 0.7) + 
     theme(legend.position = "none") + 
-    scale_fill_hue()
+    scale_fill_hue() 
 }
 
 
