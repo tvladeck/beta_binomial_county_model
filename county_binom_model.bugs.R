@@ -14,15 +14,15 @@ model {
 
     logit(mu[i]) <-
       mu_inter +
-      beta_white * white[i] +
-      beta_age * age[i] +
-      beta_diabetes * diabetes[i] + 
-      beta_gini * gini[i] + 
-      beta_income * income[i] +
-      beta_high_school * high_school[i]+
-      beta_uninsured * uninsured[i] +
-      beta_unemployment * unemployment[i] +
-      beta_crime * crime[i]
+      mu_white * white[i] +
+      mu_age * age[i] +
+      mu_diabetes * diabetes[i] + 
+      mu_gini * gini[i] + 
+      mu_income * income[i] +
+      mu_high_school * high_school[i]+
+      mu_uninsured * uninsured[i] +
+      mu_unemployment * unemployment[i] +
+      mu_crime * crime[i]
     
     log(phi[i]) <- 
       phi_inter + 
