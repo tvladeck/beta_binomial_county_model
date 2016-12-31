@@ -45,7 +45,12 @@ plot_coef_boxplots <- function(samples)
     return(df)
   }) %>% 
   ggplot(aes(y = value, x = coef)) + 
-    geom_boxplot(outlier.shape = NA) + 
+    geom_boxplot(
+      coef = 1.58,
+      outlier.shape = NA,
+      width = 0.1,
+      position = position_dodge(width=0.5)
+    ) + 
     geom_hline(yintercept=0)
 }
 
